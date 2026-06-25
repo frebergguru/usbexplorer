@@ -1,0 +1,86 @@
+name: build-release
+
+# Compiles usbexplorer on every push to master (uploading the prebuilt tarball
+# as a workflow artifact) and, on a v* tag, attaches it to a GitHub Release:
+#   - usbexplorer-<ver>-x86_64.tar.gz   prebuilt system install (CLI, TUI, GUI,
+#                                       man page, .desktop, icon, completions)
+#
+# Built in an Ubuntu 24.04 container: the GUI uses GTK >= 4.12 APIs
+# (GtkFileDialog, gtk_css_provider_load_from_string, GtkUriLauncher) that 22.04
+# is too old for. glibc 2.39 is therefore the floor.
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    steps:
+      - name: Install build dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential meson ninja-build pkg-config git ca-certificates file gettext \
+            libusb-1.0-0-dev libudev-dev libgtk-4-dev libadwaita-1-dev libnotify-dev \
+            libsqlite3-dev libxml2-dev libncurses-dev
+
+      # Pinned to current action majors (Node 24 runtime — no deprecation warnings).
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Determine version
+        id: ver
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0+$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure & build
+        run: |
+          meson setup build --prefix=/usr --buildtype=release
+          ninja -C build
+          ./build/src/usbexplorer --version   # smoke test (no USB/sysfs needed)
+
+      - name: Stage install tree
+        run: DESTDIR="$PWD/stage" meson install -C build
+
+      - name: Build system-integration archive
+        run: |
+          VER="${{ steps.ver.outputs.version }}"
+          OUT="usbexplorer-${VER}-x86_64"
+          mkdir -p "${OUT}"
+          cp -a stage/usr "${OUT}/usr"
+          install -m 0755 packaging/system/install.sh   "${OUT}/install.sh"
+          install -m 0755 packaging/system/uninstall.sh "${OUT}/uninstall.sh"
+          install -m 0644 packaging/system/README.md    "${OUT}/README.md"
+          tar czf "${OUT}.tar.gz" "${OUT}"
+          ls -lh "${OUT}.tar.gz"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: usbexplorer-${{ steps.ver.outputs.version }}
+          path: usbexplorer-*-x86_64.tar.gz
+          if-no-files-found: error
+
+      - name: Attach to Release (tags only)
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v3
+        with:
+          files: usbexplorer-*-x86_64.tar.gz
+          body_path: packaging/release-notes.md
+          append_body: true
+          generate_release_notes: true
