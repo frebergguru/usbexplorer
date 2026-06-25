@@ -1,0 +1,113 @@
+.\" SPDX-License-Identifier: GPL-2.0-or-later
+.TH USBEXPLORER 1 "2026-06-25" "usbexplorer 0.1.0" "User Commands"
+.SH NAME
+usbexplorer \- inspect the USB device tree (CLI, TUI and GTK4 GUI)
+.SH SYNOPSIS
+.B usbexplorer
+.RI [ MODE ]
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+.B usbexplorer
+is a Linux reimplementation of USB Device Tree Viewer.  It enumerates the USB
+topology from sysfs (and, where helpful, libusb), decodes every standard
+descriptor type, and presents the result through a non-interactive CLI, a
+full-screen ncurses TUI, or a GTK4/libadwaita GUI.
+.PP
+With no mode option it prints the device tree (equivalent to
+.BR \-\-tree ).
+.SH MODES
+.TP
+.B \-l, \-\-list
+One line per device, in the style of
+.BR lsusb (8).
+.TP
+.B \-t, \-\-tree
+ASCII topology tree.  Add
+.B \-i
+to also list interfaces.
+.TP
+.B \-j, \-\-json
+Full decoded descriptor tree as JSON.  Add
+.B \-c
+for compact (non-pretty) output.
+.TP
+.B \-x, \-\-xml
+Full device tree as an XML report.
+.TP
+.B \-\-tui
+Launch the interactive ncurses TUI.
+.TP
+.B \-\-gui
+Launch the GTK4 graphical interface.
+.TP
+.B \-\-watch
+Stream hotplug events as JSON lines until interrupted.
+.TP
+.BI \-\-diff " A,B"
+Show a descriptor-level diff of two devices, each addressed as
+.I BUSNUM.DEVNUM
+or
+.IR VID:PID .
+.TP
+.B \-\-history ", " \-\-history\-csv
+Show the connect/disconnect audit log (table or CSV).
+.SH DEVICE QUERIES
+.TP
+.BI \-\-udev\-rule " VID:PID"
+Print a udev rule for the matching device.
+.TP
+.BI \-\-dmesg " BUSNUM.DEVNUM"
+Print kernel-log lines that refer to the device.
+.TP
+.BI \-\-speed\-test " BUSNUM.DEVNUM"
+Run a sequential read-speed test on a storage device.
+.SH DEVICE ACTIONS
+These require root; the GUI runs them through
+.BR pkexec .
+.TP
+.BI \-\-reset\-device " BUSNUM.DEVNUM"
+Reset the device with the USBDEVFS_RESET ioctl.
+.TP
+.BI \-\-restart\-device " BUSNUM.DEVNUM"
+Unbind and rebind the usb driver.
+.TP
+.BI \-\-port\-cycle " BUSNUM.DEVNUM"
+De-authorise then re-authorise the device.
+.TP
+.BI \-\-autosuspend " on|off:BUSNUM.DEVNUM"
+Toggle runtime autosuspend.
+.TP
+.BI \-\-wakeup " on|off:BUSNUM.DEVNUM"
+Toggle remote wakeup.
+.SH FILTERING
+.TP
+.BI \-d, \-\-device " VID:PID"
+Restrict output to matching device(s).
+.TP
+.BI \-s, \-\-serial " SERIAL"
+Further restrict by serial number.
+.SH FILES
+.TP
+.I ~/.config/usbexplorer/settings.ini
+GUI session state (window geometry, theme, toggles).
+.TP
+.I ~/.local/share/usbexplorer/history.db
+SQLite connect/disconnect audit log.
+.SH EXAMPLES
+.TP
+List every device:
+.B usbexplorer \-\-list
+.TP
+Dump one device's descriptors as JSON:
+.B usbexplorer \-\-device 04f2:b7b7 \-\-json
+.TP
+Watch hotplug events:
+.B usbexplorer \-\-watch
+.SH EXIT STATUS
+Returns 0 on success and non-zero on error (for example, a device not found or
+insufficient privilege for an action).
+.SH SEE ALSO
+.BR lsusb (8),
+.BR udevadm (8)
+.SH AUTHORS
+The usbexplorer contributors.

@@ -1,0 +1,32 @@
+#compdef usbexplorer
+# zsh completion for usbexplorer
+
+_usbexplorer() {
+    _arguments -s \
+        '(- *)'{-l,--list}'[One line per device]' \
+        '(- *)'{-t,--tree}'[ASCII topology tree]' \
+        '(- *)'{-j,--json}'[Decoded descriptor tree as JSON]' \
+        '(- *)'{-x,--xml}'[Device tree as XML report]' \
+        '(- *)--tui[Launch the ncurses TUI]' \
+        '(- *)--gui[Launch the GTK4 GUI]' \
+        '(- *)--watch[Stream hotplug events as JSON lines]' \
+        '(- *)--history[Show the connect/disconnect audit log]' \
+        '(- *)--history-csv[Dump the audit log as CSV]' \
+        {-i,--interfaces}'[Show interfaces in --tree]' \
+        {-c,--compact}'[Compact JSON output]' \
+        '--device[Filter to a device]:vid\:pid' \
+        '--serial[Filter by serial number]:serial' \
+        '--udev-rule[Print a udev rule]:vid\:pid' \
+        '--dmesg[Kernel-log lines for a device]:busnum.devnum' \
+        '--speed-test[Read-speed test]:busnum.devnum' \
+        '--diff[Diff two devices]:A,B' \
+        '--reset-device[Reset device (root)]:busnum.devnum' \
+        '--restart-device[Rebind driver (root)]:busnum.devnum' \
+        '--port-cycle[De/re-authorise (root)]:busnum.devnum' \
+        '--autosuspend[Toggle autosuspend (root)]:on|off\:busnum.devnum' \
+        '--wakeup[Toggle remote wakeup (root)]:on|off\:busnum.devnum' \
+        '(- *)--help[Show help]' \
+        '(- *)--version[Show version]'
+}
+
+_usbexplorer "$@"

@@ -1,0 +1,4 @@
+src/gui/mainwindow.c
+src/gui/app.c
+src/gui/diff_ui.c
+src/gui/bluetooth_ui.c

@@ -1,0 +1,15 @@
+# Build output
+/build/
+build*/
+
+# Object files / binaries
+*.o
+*.a
+*.so
+*.so.*
+
+# Editor / misc
+*.swp
+*~
+.cache/
+compile_commands.json

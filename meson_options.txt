@@ -1,0 +1,4 @@
+option('gui',     type: 'feature', value: 'auto', description: 'Build the GTK4 GUI frontend')
+option('tui',     type: 'feature', value: 'auto', description: 'Build the ncurses TUI frontend')
+option('history', type: 'feature', value: 'auto', description: 'Build SQLite device history / audit log')
+option('usbmon',  type: 'feature', value: 'auto', description: 'Build usbmon packet capture support')

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=usbexplorer
+GenericName=USB Device Tree Viewer
+Comment=Inspect the USB device tree, descriptors and topology
+Exec=usbexplorer --gui
+Icon=usbexplorer
+Terminal=false
+Categories=System;HardwareSettings;GTK;
+Keywords=USB;device;tree;descriptor;hardware;hub;
+StartupNotify=true

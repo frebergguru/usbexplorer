@@ -1,0 +1,114 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the usbexplorer package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: usbexplorer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-25 10:54+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/gui/mainwindow.c:309
+msgid "Copy device info"
+msgstr ""
+
+#: src/gui/mainwindow.c:310
+msgid "Copy udev rule"
+msgstr ""
+
+#: src/gui/mainwindow.c:311
+msgid "Search online"
+msgstr ""
+
+#: src/gui/mainwindow.c:312
+msgid "Open sysfs folder"
+msgstr ""
+
+#: src/gui/mainwindow.c:317
+msgid "Enable autosuspend"
+msgstr ""
+
+#: src/gui/mainwindow.c:318
+msgid "Disable autosuspend"
+msgstr ""
+
+#: src/gui/mainwindow.c:319
+msgid "Enable remote wakeup"
+msgstr ""
+
+#: src/gui/mainwindow.c:320
+msgid "Disable remote wakeup"
+msgstr ""
+
+#: src/gui/mainwindow.c:321
+msgid "Power (pkexec)"
+msgstr ""
+
+#: src/gui/mainwindow.c:325
+msgid "Reset device"
+msgstr ""
+
+#: src/gui/mainwindow.c:326
+msgid "Restart (rebind driver)"
+msgstr ""
+
+#: src/gui/mainwindow.c:327
+msgid "Power-cycle port"
+msgstr ""
+
+#: src/gui/mainwindow.c:328
+msgid "Privileged (pkexec)"
+msgstr ""
+
+#: src/gui/mainwindow.c:345
+msgid "Theme"
+msgstr ""
+
+#: src/gui/mainwindow.c:357
+msgid "Appearance"
+msgstr ""
+
+#: src/gui/mainwindow.c:361
+msgid "Show event log"
+msgstr ""
+
+#: src/gui/mainwindow.c:362
+msgid "Hotplug notifications"
+msgstr ""
+
+#: src/gui/mainwindow.c:445
+msgid "Refresh (re-enumerate)"
+msgstr ""
+
+#: src/gui/mainwindow.c:452
+msgid "Search VID:PID, name, serial…"
+msgstr ""
+
+#: src/gui/mainwindow.c:455
+msgid "Search devices"
+msgstr ""
+
+#: src/gui/mainwindow.c:461
+msgid "Main menu"
+msgstr ""
+
+#: src/gui/mainwindow.c:476
+msgid "USB device tree"
+msgstr ""
+
+#: src/gui/mainwindow.c:478
+msgid "Device details"
+msgstr ""
+
+#: src/gui/mainwindow.c:480
+msgid "Event log"
+msgstr ""
