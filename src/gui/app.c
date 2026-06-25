@@ -6,6 +6,21 @@
 
 #include <adwaita.h>
 #include <stdlib.h>
+#include <string.h>
+
+/* Drop the benign "Unable to acquire session bus … dbus-launch …" warning that
+ * GTK/GLib emit when launched without a D-Bus session bus (SSH/headless). The
+ * app degrades fine (no notifications/portals); every other log passes through. */
+static GLogWriterOutput log_filter(GLogLevelFlags level, const GLogField *fields,
+                                   gsize n_fields, gpointer user)
+{
+    for (gsize i = 0; i < n_fields; i++) {
+        if (strcmp(fields[i].key, "MESSAGE") == 0 && fields[i].value &&
+            strstr(fields[i].value, "Unable to acquire session bus"))
+            return G_LOG_WRITER_HANDLED;
+    }
+    return g_log_writer_default(level, fields, n_fields, user);
+}
 
 static gboolean selftest_shot(gpointer win)
 {
@@ -55,6 +70,7 @@ static void on_activate(GtkApplication *app, gpointer user)
 
 int gui_main(void)
 {
+    g_log_set_writer_func(log_filter, NULL, NULL);
     ue_notify_init();
     AdwApplication *app = adw_application_new("org.usbexplorer.UsbExplorer",
                                               G_APPLICATION_NON_UNIQUE);
