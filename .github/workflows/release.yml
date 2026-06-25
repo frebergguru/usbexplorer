@@ -1,13 +1,15 @@
 name: build-release
 
-# Compiles usbexplorer on every push to master (uploading the prebuilt tarball
-# as a workflow artifact) and, on a v* tag, attaches it to a GitHub Release:
-#   - usbexplorer-<ver>-x86_64.tar.gz   prebuilt system install (CLI, TUI, GUI,
-#                                       man page, .desktop, icon, completions)
+# Compiles usbexplorer for x86_64 and aarch64 on every push to master (each
+# uploaded as a workflow artifact) and, on a v* tag, attaches both prebuilt
+# tarballs to a single GitHub Release:
+#   - usbexplorer-<ver>-x86_64.tar.gz
+#   - usbexplorer-<ver>-aarch64.tar.gz
+# (prebuilt system install: CLI, TUI, GUI, man page, .desktop, icon, completions)
 #
-# Built in an Ubuntu 24.04 container: the GUI uses GTK >= 4.12 APIs
-# (GtkFileDialog, gtk_css_provider_load_from_string, GtkUriLauncher) that 22.04
-# is too old for. glibc 2.39 is therefore the floor.
+# Both arches build natively (GitHub's free ubuntu-24.04 / ubuntu-24.04-arm
+# runners) in an Ubuntu 24.04 container: the GUI uses GTK >= 4.12 APIs that
+# 22.04 is too old for. glibc 2.39 is therefore the floor.
 
 on:
   push:
@@ -20,7 +22,15 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     container: ubuntu:24.04
     steps:
       - name: Install build dependencies
@@ -53,14 +63,14 @@ jobs:
           meson setup build --prefix=/usr --buildtype=release
           ninja -C build
           ./build/src/usbexplorer --version   # smoke test (no USB/sysfs needed)
+          test "$(uname -m)" = "${{ matrix.arch }}"   # the runner is the arch we claim
 
       - name: Stage install tree
         run: DESTDIR="$PWD/stage" meson install -C build
 
       - name: Build system-integration archive
         run: |
-          VER="${{ steps.ver.outputs.version }}"
-          OUT="usbexplorer-${VER}-x86_64"
+          OUT="usbexplorer-${{ steps.ver.outputs.version }}-${{ matrix.arch }}"
           mkdir -p "${OUT}"
           cp -a stage/usr "${OUT}/usr"
           install -m 0755 packaging/system/install.sh   "${OUT}/install.sh"
@@ -72,15 +82,28 @@ jobs:
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v7
         with:
-          name: usbexplorer-${{ steps.ver.outputs.version }}
-          path: usbexplorer-*-x86_64.tar.gz
+          name: usbexplorer-${{ steps.ver.outputs.version }}-${{ matrix.arch }}
+          path: usbexplorer-${{ steps.ver.outputs.version }}-${{ matrix.arch }}.tar.gz
           if-no-files-found: error
 
-      - name: Attach to Release (tags only)
-        if: github.ref_type == 'tag'
+  release:
+    name: Publish release
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout            # for packaging/release-notes.md
+        uses: actions/checkout@v7
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: dist
+
+      - name: Attach to Release
         uses: softprops/action-gh-release@v3
         with:
-          files: usbexplorer-*-x86_64.tar.gz
+          files: dist/**/*.tar.gz
           body_path: packaging/release-notes.md
           append_body: true
           generate_release_notes: true
